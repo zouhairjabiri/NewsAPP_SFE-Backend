@@ -37,6 +37,7 @@ class Actualite(models.Model):
         rating = Rating.objects.filter(Actualite=self)
         return len(rating)
 
+
     def avg_ratings(self):
         sum = 0
         ratings = Rating.objects.filter(Actualite=self)
@@ -48,6 +49,9 @@ class Actualite(models.Model):
         else: 
             return 0
 
+    def no_of_comments(self):
+        Comments = Comment.objects.filter(Actualite=self)
+        return len(Comments)
     
 
 class Rating(models.Model):
@@ -70,6 +74,7 @@ class Comment(models.Model):
     User = models.ForeignKey(User, on_delete=models.CASCADE)
     Commentaire = models.TextField()
     Date = models.DateTimeField(auto_now=True,auto_now_add=False)
+
 
     def __str__(self):
         return str(self.id)

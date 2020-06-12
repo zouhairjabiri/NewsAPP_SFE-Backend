@@ -41,7 +41,7 @@ class ActualiteSerializer(serializers.ModelSerializer):
         model = Actualite
         fields = [
             'id', 'Categorie', 'auteur', 'image', 'Titre', 'Description',
-            'DatePublication','no_of_ratings','avg_ratings',
+            'DatePublication','no_of_ratings','avg_ratings','no_of_comments',
         ]
 
     def to_representation(self, instance):

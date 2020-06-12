@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from rest_framework.authtoken.models import Token
 from rest_framework import serializers
+from datetime import datetime, timedelta
+
 
 class ResponsableEtabViewSet(viewsets.ModelViewSet):
     queryset = ResponsableEtab.objects.all().order_by('id')
@@ -84,7 +86,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'])
     def getComments(self, request, pk=None):
-        comments = Comment.objects.filter(Actualite=pk)
+        comments = Comment.objects.filter(Actualite=pk).order_by('id').reverse()
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
 
@@ -112,3 +114,42 @@ class ActualiteViewSet(viewsets.ModelViewSet):
         temp = sorted(Actualite.objects.all(), key=lambda a: a.no_of_ratings(),reverse=True)
         serializer = ActualiteSerializer(temp, many=True)
         return Response(serializer.data)
+
+    @action(detail=False)
+    def getactualitesbycomments(self, request):
+        temp = sorted(Actualite.objects.all(), key=lambda a: a.no_of_comments(),reverse=True)
+        serializer = ActualiteSerializer(temp, many=True)
+        return Response(serializer.data)
+    
+
+    @action(detail=False)
+    def getactualitesby24hours(self, request):
+        earlier = datetime.now() - timedelta(hours=24)
+        print(datetime.now())
+        print(earlier)
+        temp = Actualite.objects.filter(DatePublication__range=(earlier,datetime.now())).order_by('-DatePublication')
+        serializer = ActualiteSerializer(temp, many=True)
+        print(serializer)
+        return Response(serializer.data)
+    
+
+    @action(detail=False)
+    def getactualitesbySemaine(self, request):
+        earlier = datetime.now() - timedelta(days=7)
+        print(datetime.now())
+        print(earlier)
+        temp = Actualite.objects.filter(DatePublication__range=(earlier,datetime.now())).order_by('-DatePublication')
+        serializer = ActualiteSerializer(temp, many=True)
+        print(serializer)
+        return Response(serializer.data)
+    
+    @action(detail=False)
+    def getactualitesbymonth(self, request):
+        earlier = datetime.now() - timedelta(days=30)
+        print(datetime.now())
+        print(earlier)
+        temp = Actualite.objects.filter(DatePublication__range=(earlier,datetime.now())).order_by('-DatePublication')
+        serializer = ActualiteSerializer(temp, many=True)
+        print(serializer)
+        return Response(serializer.data)
+    
