@@ -14,6 +14,11 @@ from rest_framework import serializers
 from datetime import datetime, timedelta
 
 
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+
+
+
 class ResponsableEtabViewSet(viewsets.ModelViewSet):
     queryset = ResponsableEtab.objects.all().order_by('id')
     serializer_class = ResponsableEtabSerializer
@@ -31,12 +36,19 @@ class UserViewSet(viewsets.ModelViewSet):
         username = request.data['username']
         first_name=request.data['first_name']
         last_name = request.data['last_name']
+        email = request.data['email']
         password=request.data['password']
         if User.objects.filter(username=username).exists():
             return Response({
             'message': 'username deja existe'
         })
-        user = User.objects.create_user(username=username,first_name=first_name,last_name=last_name,password=password)
+        try:
+            validate_email(email)
+        except ValidationError as e:
+            return Response({
+                'message': False
+                }) 
+        user = User.objects.create_user(username=username,first_name=first_name,last_name=last_name,email=email,password=password)
         token = Token.objects.create(user=user)
         account = UserSerializer(user).data
         return Response({
@@ -45,8 +57,29 @@ class UserViewSet(viewsets.ModelViewSet):
             'username': account['username'],
             'First_name': account['first_name'],
             'Last_name': account['last_name'],
+            'email': account['email'],
             'message': True
         })
+
+    @action(detail=True, methods=['POST'])
+    def update_account(self, request,pk=None):
+        username = request.data['username']
+        first_name=request.data['first_name']
+        last_name = request.data['last_name']
+        email = request.data['email']
+        User.objects.filter(id=pk).update(username=username,first_name=first_name,last_name=last_name,email=email)
+        temp = User.objects.get(id=pk)
+        account = UserSerializer(temp).data
+        return Response({
+            'id': account['id'],
+            'username': account['username'],
+            'First_name': account['first_name'],
+            'Last_name': account['last_name'],
+            'email': account['email'],
+            'message': True
+        })
+
+
 
 class CategorieViewSet(viewsets.ModelViewSet):
     queryset = Categorie.objects.all().order_by('id')
@@ -76,7 +109,18 @@ class RatingViewSet(viewsets.ModelViewSet):
         return Response({
             'message': 'Succed'
         })
-
+        
+    @action(detail=True, methods=['POST'])
+    def getuserrating(self, request,pk=None):
+        id_user = request.data['id']
+        id_Actualite = pk
+        if Rating.objects.filter(User=id_user,Actualite=id_Actualite).exists():
+            ratenumber = Rating.objects.get(User=id_user,Actualite=id_Actualite)
+            rate = ratenumber.Rate
+            print(ratenumber)
+            return Response(
+            {'message': True, 'rate': rate})       
+        return Response({'message': False})
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all().order_by('id')

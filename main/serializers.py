@@ -10,7 +10,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'password']
+        fields = ['id', 'first_name', 'last_name', 'username', 'password','email']
         required_fields = fields
         extra_kwargs = {
             'password': {

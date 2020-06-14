@@ -24,7 +24,7 @@ class Categorie(models.Model):
 class Actualite(models.Model):
     auteur = models.ForeignKey(ResponsableEtab, related_name='Actualites', on_delete=models.CASCADE)
     Categorie = models.ForeignKey(Categorie, on_delete = models.CASCADE) 
-    Titre = models.CharField(max_length=80)
+    Titre = models.CharField(max_length=200)
     image = models.ImageField(storage=gd_storage)
     DatePublication = models.DateTimeField(auto_now_add=True)
     etat = models.IntegerField(default=0)
