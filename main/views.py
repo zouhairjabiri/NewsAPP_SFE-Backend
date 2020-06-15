@@ -62,22 +62,18 @@ class UserViewSet(viewsets.ModelViewSet):
         })
 
     @action(detail=True, methods=['POST'])
-    def update_account(self, request,pk=None):
-        username = request.data['username']
+    def update_account_basic(self, request,pk=None):
         first_name=request.data['first_name']
         last_name = request.data['last_name']
         email = request.data['email']
-        if User.objects.filter(username=username).exists():
-            return Response({
-            'message': 'username deja existe'
-        })
+     
         try:
             validate_email(email)
         except ValidationError as e:
             return Response({
                 'message': 'email est incorrecte'
                 }) 
-        User.objects.filter(id=pk).update(username=username,first_name=first_name,last_name=last_name,email=email)
+        User.objects.filter(id=pk).update(first_name=first_name,last_name=last_name,email=email)
         temp = User.objects.get(id=pk)
         account = UserSerializer(temp).data
         return Response({
@@ -89,6 +85,24 @@ class UserViewSet(viewsets.ModelViewSet):
             'message': True
         })
 
+    @action(detail=True, methods=['POST'])
+    def update_account_username(self, request,pk=None):
+        username = request.data['username']
+        if User.objects.filter(username=username).exists():
+            return Response({
+            'message': 'username deja existe'
+        })
+        User.objects.filter(id=pk).update(username=username)
+        temp = User.objects.get(id=pk)
+        account = UserSerializer(temp).data
+        return Response({
+            'id': account['id'],
+            'username': account['username'],
+            'First_name': account['first_name'],
+            'Last_name': account['last_name'],
+            'email': account['email'],
+            'message': True
+        })
 
 
 class CategorieViewSet(viewsets.ModelViewSet):
