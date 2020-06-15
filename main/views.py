@@ -67,6 +67,16 @@ class UserViewSet(viewsets.ModelViewSet):
         first_name=request.data['first_name']
         last_name = request.data['last_name']
         email = request.data['email']
+        if User.objects.filter(username=username).exists():
+            return Response({
+            'message': 'username deja existe'
+        })
+        try:
+            validate_email(email)
+        except ValidationError as e:
+            return Response({
+                'message': 'email est incorrecte'
+                }) 
         User.objects.filter(id=pk).update(username=username,first_name=first_name,last_name=last_name,email=email)
         temp = User.objects.get(id=pk)
         account = UserSerializer(temp).data
